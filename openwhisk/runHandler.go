@@ -105,16 +105,27 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 
 	// check if the answer is an object map
 	var objmap map[string]interface{}
+	var objarray []interface{}
+	var ismap = true
 	err = json.Unmarshal(response, &objmap)
 	if err != nil {
-		sendError(w, http.StatusBadGateway, "The action did not return a dictionary.")
-		return
+		ismap = false
+		err = json.Unmarshal(response, &objarray)
+		if err != nil {
+			sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
+			return
+		}
 	}
 
 	// wait for log reading finished
 	<-stopSignal
-	objmap[LOG_FIELD] = logs
-	newResponse, _ := json.Marshal(objmap)
+	var newResponse []byte
+	if ismap {
+		objmap[LOG_FIELD] = logs
+		newResponse, _ = json.Marshal(objmap)
+	} else {
+		newResponse, _ = json.Marshal(objarray)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(newResponse)))
