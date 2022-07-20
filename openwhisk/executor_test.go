@@ -75,6 +75,8 @@ func ExampleNewExecutor_hello() {
 	// <nil>
 	// {"hello": "Mike"}
 	// msg=hello Mike
+	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
+	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 }
 
 func ExampleNewExecutor_env() {

@@ -30,6 +30,7 @@ import (
 
 // OutputGuard constant string
 const OutputGuard = "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX\n"
+const OutputGuardRaw = "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX"
 
 // DefaultTimeoutStart to wait for a process to start
 var DefaultTimeoutStart = 5 * time.Millisecond

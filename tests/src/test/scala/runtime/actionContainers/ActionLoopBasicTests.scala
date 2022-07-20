@@ -42,6 +42,8 @@ class ActionLoopBasicTests extends BasicActionRunnerTests with WskActorSystem {
   override val testNotReturningJson = TestConfig("""#!/bin/bash
       |read line
       |echo '"not json"' >&3
+      |echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX"
+      |echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX" >&2
       |read line
       |""".stripMargin)
 
@@ -50,6 +52,8 @@ class ActionLoopBasicTests extends BasicActionRunnerTests with WskActorSystem {
        |do
        |    echo "hello stdout"
        |    echo "hello stderr" >&2
+       |    echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX"
+       |    echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX" >&2
        |    echo "$line" | jq -c .value >&3
        |done
     """.stripMargin)
@@ -61,6 +65,8 @@ class ActionLoopBasicTests extends BasicActionRunnerTests with WskActorSystem {
        |   delimiter="$(echo "$line" | jq -r ".value.delimiter")"
        |   msg="$delimiter ☃ $delimiter"
        |   echo "$msg"
+       |   echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX"
+       |   echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX" >&2
        |   echo "{\"winter\": \"$msg\"}" >&3
        |done
     """.stripMargin)
@@ -77,6 +83,8 @@ class ActionLoopBasicTests extends BasicActionRunnerTests with WskActorSystem {
       |  __OW_ACTION_NAME="$(echo "$line"    | jq -r .action_name)"
       |  __OW_ACTION_VERSION="$(echo "$line" | jq -r .action_version)"
       |  __OW_DEADLINE="$(echo "$line"       | jq -r .deadline)"
+      |  echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX"
+      |  echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX" >&2
       |  echo >&3 "{ \
       |   \"api_host\": \"$__OW_API_HOST\", \
       |   \"api_key\": \"$__OW_API_KEY\", \
@@ -91,7 +99,10 @@ class ActionLoopBasicTests extends BasicActionRunnerTests with WskActorSystem {
   val echoSh =
     """|#!/bin/bash
        |while read line
-       |do echo "$line" | jq -c .value  >&3
+       |do
+       |   echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX"
+       |   echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX" >&2
+       |   echo "$line" | jq -c .value  >&3
        |done
     """.stripMargin
 

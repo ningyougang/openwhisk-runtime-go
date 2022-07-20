@@ -28,6 +28,9 @@ import (
 	"strings"
 )
 
+// log guard
+const OutputGuard = "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX\n"
+
 func main() {
 	// debugging
 	var debug = os.Getenv("OW_DEBUG") != ""
@@ -106,6 +109,8 @@ func main() {
 		if debug {
 			log.Printf("'<<<%s'<<<", output)
 		}
+		fmt.Fprint(os.Stdout, OutputGuard)
+		fmt.Fprint(os.Stderr, OutputGuard)
 		fmt.Fprintf(out, "%s\n", output)
 	}
 }

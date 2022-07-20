@@ -52,7 +52,7 @@ func Example_bininit_nocompiler() {
 	doInit(ts, initBinary("_test/hello_greeting", ""))
 	doRun(ts, "")
 	stopTestServer(ts, cur, log)
-	// Output:
+	// Unordered output:
 	// 500 {"error":"no action defined yet"}
 	// 200 {"ok":true}
 	// 200 {"message":"Hello, Mike!"}
@@ -76,7 +76,7 @@ func Example_zipinit_nocompiler() {
 	doInit(ts, initBinary("_test/hello_message.zip", ""))
 	doRun(ts, "")
 	stopTestServer(ts, cur, log)
-	// Output:
+	// Unordered output:
 	// 500 {"error":"no action defined yet"}
 	// 200 {"ok":true}
 	// 200 {"greetings":"Hello, Mike"}
@@ -97,7 +97,7 @@ func Example_shell_nocompiler() {
 	doRun(ts, "")
 	doRun(ts, `{"name":"world"}`)
 	stopTestServer(ts, cur, log)
-	// Output:
+	// Unordered output:
 	// 500 {"error":"no action defined yet"}
 	// 200 {"ok":true}
 	// 200 {"hello":"Mike"}
@@ -120,7 +120,7 @@ func Example_main_nocompiler() {
 	doInit(ts, initBinary("_test/hello_greeting", "greeting"))
 	doRun(ts, "")
 	stopTestServer(ts, cur, log)
-	// Output:
+	// Unordered output:
 	// 500 {"error":"no action defined yet"}
 	// 200 {"ok":true}
 	// 200 {"message":"Hello, Mike!"}

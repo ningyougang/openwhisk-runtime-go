@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 // field name of user logs
@@ -68,18 +69,19 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer ap.theExecutor.cmd.Stdout.Write([]byte(OutputGuard))
-	defer ap.theExecutor.cmd.Stderr.Write([]byte(OutputGuard))
-
 	// remove newlines
 	body = bytes.Replace(body, []byte("\n"), []byte(""), -1)
 
-	// read logs until "stop" signal, this guarantee that all logs will be captured before send back to user
+	// read logs until two sentinel logs are got, this guarantee that all logs will be captured before send back to user
 	stopSignal := make(chan bool)
 	var logs []string
 	go func() {
+		var sentinel = 0
 		for log := range ap.theExecutor.logger {
-			if log == "stop" {
+			if strings.Contains(log, OutputGuardRaw) {
+				sentinel += 1
+			}
+			if sentinel == 2 {
 				break
 			}
 			logs = append(logs, log)
@@ -93,7 +95,8 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 	// check for early termination
 	if err != nil {
 		Debug("WARNING! Command exited")
-		ap.theExecutor.logger <- "stop"
+		ap.outFile.Write([]byte(OutputGuard))
+		ap.errFile.Write([]byte(OutputGuard))
 		ap.theExecutor = nil
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("command exited"))
 		return
@@ -107,14 +110,12 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err = json.Unmarshal(response, &objarray)
 		if err != nil {
-			ap.theExecutor.logger <- "stop"
 			sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
 			return
 		}
 	}
 
-	// send "stop" signal and wait for log reading finished
-	ap.theExecutor.logger <- "stop"
+	// wait for log reading finished
 	<-stopSignal
 	objmap[LOG_FIELD] = logs
 	newResponse, _ := json.Marshal(objmap)

@@ -63,6 +63,8 @@ func Example_cli_compiler() {
 	// false
 	// _test/compile/0/bin/exec: application/x-executable
 	// name=Mike
+	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
+	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 	// {"message":"Hello, Mike!"}
 	// true
 	// false
@@ -80,6 +82,8 @@ func Example_hello() {
 	// Output:
 	// _test/compile/1/bin/exec: application/x-executable
 	// name=Mike
+	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
+	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 	// {"hello":"Hello, Mike!"}
 }
 
@@ -96,6 +100,8 @@ func Example_package() {
 	// _test/compile/2/bin/exec: application/x-executable
 	// Main
 	// Hello, Mike
+	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
+	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 	// {"greetings":"Hello, Mike"}
 }
 
