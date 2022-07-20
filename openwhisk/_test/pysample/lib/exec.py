@@ -19,11 +19,13 @@
 from __future__ import print_function
 
 import os
+import sys
 import json
 
 from action.main import main
 inp = os.fdopen(0, "rb")
 out = os.fdopen(3, "wb")
+OutputGuard = "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX"
 while True:
     while True:
         line = inp.readline()
@@ -33,5 +35,9 @@ while True:
             payload = args["value"]
         res = main(payload)
         out.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
-        out.write("\n")
+        print(OutputGuard, file=sys.stdout)
+        print(OutputGuard, file=sys.stderr)
+        out.write(b"\n")
+        sys.stdout.flush()
+        sys.stderr.flush()
         out.flush()

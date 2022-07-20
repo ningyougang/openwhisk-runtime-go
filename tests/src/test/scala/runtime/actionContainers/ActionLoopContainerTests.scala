@@ -50,6 +50,8 @@ class ActionLoopContainerTests
          |   fi
          |   echo "name=$$name"
          |   hello="Hello, $$name"
+         |   echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX"
+         |   echo "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX" >&2
          |   echo '{"${main}":"'$$hello'"}' >&3
          |done
          |""".stripMargin

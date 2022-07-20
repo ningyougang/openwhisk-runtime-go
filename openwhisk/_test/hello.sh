@@ -19,5 +19,7 @@ while read line
 do
    name="$(echo $line | jq -r .value.name)"
    echo msg="hello $name"
+   echo 'XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX'
+   echo 'XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX' >&2
    echo '{"hello": "'$name'"}' >&3
 done

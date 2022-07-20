@@ -55,6 +55,8 @@ abstract class ActionLoopBasicGoTests
                                                     else ""}
        |	reader.ReadBytes('\\n')
        |	fmt.Fprintln(out, \"a string but not a map\")
+       | 	fmt.Fprintln(os.Stdout, "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX")
+       |	fmt.Fprintln(os.Stderr, "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX")
        |	reader.ReadBytes('\\n')
        |}
     """.stripMargin)
