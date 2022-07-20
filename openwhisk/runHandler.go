@@ -25,6 +25,9 @@ import (
 	"net/http"
 )
 
+// field name of user logs
+const LOG_FIELD = "__OW_LOGS"
+
 // ErrResponse is the response when there are errors
 type ErrResponse struct {
 	Error string `json:"error"`
@@ -65,8 +68,24 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer ap.theExecutor.cmd.Stdout.Write([]byte(OutputGuard))
+	defer ap.theExecutor.cmd.Stderr.Write([]byte(OutputGuard))
+
 	// remove newlines
 	body = bytes.Replace(body, []byte("\n"), []byte(""), -1)
+
+	// read logs until "stop" signal, this guarantee that all logs will be captured before send back to user
+	stopSignal := make(chan bool)
+	var logs []string
+	go func() {
+		for log := range ap.theExecutor.logger {
+			if log == "stop" {
+				break
+			}
+			logs = append(logs, log)
+		}
+		stopSignal <- true
+	}()
 
 	// execute the action
 	response, err := ap.theExecutor.Interact(body)
@@ -74,6 +93,7 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 	// check for early termination
 	if err != nil {
 		Debug("WARNING! Command exited")
+		ap.theExecutor.logger <- "stop"
 		ap.theExecutor = nil
 		sendError(w, http.StatusBadRequest, fmt.Sprintf("command exited"))
 		return
@@ -81,20 +101,27 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 	DebugLimit("received:", response, 120)
 
 	// check if the answer is an object map
-	var objmap map[string]*json.RawMessage
+	var objmap map[string]interface{}
 	var objarray []interface{}
 	err = json.Unmarshal(response, &objmap)
 	if err != nil {
 		err = json.Unmarshal(response, &objarray)
 		if err != nil {
+			ap.theExecutor.logger <- "stop"
 			sendError(w, http.StatusBadGateway, "The action did not return a dictionary or array.")
 			return
 		}
 	}
 
+	// send "stop" signal and wait for log reading finished
+	ap.theExecutor.logger <- "stop"
+	<-stopSignal
+	objmap[LOG_FIELD] = logs
+	newResponse, _ := json.Marshal(objmap)
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(response)))
-	numBytesWritten, err := w.Write(response)
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(newResponse)))
+	numBytesWritten, err := w.Write(newResponse)
 
 	// flush output
 	if f, ok := w.(http.Flusher); ok {
@@ -106,7 +133,7 @@ func (ap *ActionProxy) runHandler(w http.ResponseWriter, r *http.Request) {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Error writing response: %v", err))
 		return
 	}
-	if numBytesWritten != len(response) {
+	if numBytesWritten != len(newResponse) {
 		sendError(w, http.StatusInternalServerError, fmt.Sprintf("Only wrote %d of %d bytes to response", numBytesWritten, len(response)))
 		return
 	}

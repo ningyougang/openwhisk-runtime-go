@@ -81,12 +81,19 @@ func doRun(ts *httptest.Server, message string) {
 		message = `{"name":"Mike"}`
 	}
 	resp, status, err := doPost(ts.URL+"/run", `{ "value": `+message+`}`)
+
+	// remove `__OW_LOGS` field
+	var objmap map[string]*json.RawMessage
+	json.Unmarshal([]byte(resp), &objmap)
+	delete(objmap, "__OW_LOGS")
+	newResp, _ := json.Marshal(objmap)
+
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Printf("%d %s", status, resp)
+		fmt.Printf("%d %s", status, newResp)
 	}
-	if !strings.HasSuffix(resp, "\n") {
+	if !strings.HasSuffix(string(newResp), "\n") {
 		fmt.Println()
 	}
 }

@@ -100,8 +100,8 @@ func Example_shell_nocompiler() {
 	// Output:
 	// 500 {"error":"no action defined yet"}
 	// 200 {"ok":true}
-	// 200 {"hello": "Mike"}
-	// 200 {"hello": "world"}
+	// 200 {"hello":"Mike"}
+	// 200 {"hello":"world"}
 	// msg=hello Mike
 	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
@@ -237,8 +237,8 @@ func Example_zip_init() {
 	stopTestServer(ts, cur, log)
 	// Output:
 	// 200 {"ok":true}
-	// 200 {"python": "Hello, Mike"}
-	// 200 {"python": "Hello, World"}
+	// 200 {"python":"Hello, Mike"}
+	// 200 {"python":"Hello, World"}
 	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX
 	// XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX

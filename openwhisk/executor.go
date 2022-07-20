@@ -41,15 +41,20 @@ type Executor struct {
 	input  io.WriteCloser
 	output *bufio.Reader
 	exited chan bool
+	logger chan string
 }
 
 // NewExecutor creates a child subprocess using the provided command line,
 // writing the logs in the given file.
 // You can then start it getting a communication channel
 func NewExecutor(logout *os.File, logerr *os.File, command string, env map[string]string, args ...string) (proc *Executor) {
+	stringChan := make(chan string, 100)
 	cmd := exec.Command(command, args...)
-	cmd.Stdout = logout
-	cmd.Stderr = logerr
+	stdoutWritter := NewLogWriter("stdout", stringChan, logout)
+	cmd.Stdout = stdoutWritter
+
+	stderrWritter := NewLogWriter("stderr", stringChan, logerr)
+	cmd.Stderr = stderrWritter
 	cmd.Env = []string{}
 	for k, v := range env {
 		cmd.Env = append(cmd.Env, k+"="+v)
@@ -73,6 +78,7 @@ func NewExecutor(logout *os.File, logerr *os.File, command string, env map[strin
 		input,
 		output,
 		make(chan bool),
+		stringChan,
 	}
 }
 
@@ -101,8 +107,6 @@ func (proc *Executor) Interact(in []byte) ([]byte, error) {
 	case <-proc.exited:
 		err = errors.New("command exited")
 	}
-	proc.cmd.Stdout.Write([]byte(OutputGuard))
-	proc.cmd.Stderr.Write([]byte(OutputGuard))
 	return out, err
 }
 
